@@ -19,7 +19,7 @@
 html,
 body {
   margin: 0;
-  min-width: 288px;
+  min-width: 244px;
 }
 
 body {
@@ -32,14 +32,14 @@ body {
 }
 
 .shell {
-  width: 294px;
-  padding: 10px;
+  width: 248px;
+  padding: 8px;
 }
 
 .hero,
 .panel {
   border: 1px solid var(--panel-border);
-  border-radius: 20px;
+  border-radius: 16px;
   background: var(--panel);
   box-shadow: 0 24px 40px -28px var(--shadow);
 }
@@ -48,8 +48,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 10px 12px;
+  gap: 6px;
+  padding: 8px 10px;
   background:
     radial-gradient(circle at 85% 20%, rgba(245, 200, 92, 0.14), transparent 24%),
     radial-gradient(circle at 15% 20%, rgba(126, 227, 255, 0.12), transparent 24%),
@@ -58,44 +58,44 @@ body {
 
 .hero h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1;
   letter-spacing: -0.04em;
 }
 
 .mascot {
-  width: 76px;
-  height: 76px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
   image-rendering: pixelated;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
 }
 
 .panel {
-  margin-top: 8px;
-  padding: 12px;
+  margin-top: 6px;
+  padding: 9px;
 }
 
 .panel-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .panel-head h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
 }
 
 .status {
   min-height: 18px;
-  padding: 4px 9px;
+  padding: 3px 7px;
   border: 1px solid rgba(140, 255, 189, 0.18);
   border-radius: 999px;
   color: var(--success);
-  font-size: 11px;
+  font-size: 10px;
   white-space: nowrap;
   background: rgba(140, 255, 189, 0.08);
 }
@@ -108,26 +108,26 @@ body {
 
 .field {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .field-label {
   display: block;
-  margin-bottom: 7px;
-  font-size: 12px;
+  margin-bottom: 5px;
+  font-size: 11px;
   font-weight: 700;
 }
 
 input[type="number"] {
   width: 100%;
-  height: 38px;
-  padding: 0 11px;
+  height: 34px;
+  padding: 0 10px;
   border: 1px solid rgba(159, 202, 228, 0.2);
-  border-radius: 14px;
+  border-radius: 12px;
   background: rgba(3, 11, 18, 0.78);
   color: var(--text);
   outline: none;
-  font-size: 15px;
+  font-size: 14px;
   transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 
@@ -138,18 +138,18 @@ input[type="number"]:focus {
 
 .option-group {
   display: grid;
-  gap: 7px;
+  gap: 5px;
 }
 
 .toggle {
   position: relative;
   display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 10px;
+  grid-template-columns: 38px 1fr;
+  gap: 8px;
   align-items: center;
-  padding: 9px 10px;
+  padding: 7px 8px;
   border: 1px solid rgba(159, 202, 228, 0.12);
-  border-radius: 16px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
   cursor: pointer;
   transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
@@ -168,8 +168,8 @@ input[type="number"]:focus {
 
 .toggle-ui {
   position: relative;
-  width: 44px;
-  height: 24px;
+  width: 38px;
+  height: 21px;
   border-radius: 999px;
   background: rgba(154, 181, 200, 0.22);
   transition: background 160ms ease, box-shadow 160ms ease;
@@ -178,10 +178,10 @@ input[type="number"]:focus {
 .toggle-ui::after {
   content: "";
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
+  top: 2px;
+  left: 2px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   background: linear-gradient(180deg, #ffffff, #dce5ed);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
@@ -194,10 +194,18 @@ input[type="number"]:focus {
 }
 
 .toggle input:checked + .toggle-ui::after {
-  transform: translateX(20px);
+  transform: translateX(17px);
 }
 
 .toggle-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
+}
+
+.credit {
+  margin: 6px 2px 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
 }
