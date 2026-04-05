@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShowSpeed</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>ShowSpeed</h1>
+      </div>
+      <img
+        class="mascot"
+        src="https://play.pokemonshowdown.com/sprites/gen5ani/ninjask.gif"
+        alt="Animated Ninjask sprite"
+        width="96"
+        height="96"
+      >
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Settings</h2>
+        <div class="status" id="status" aria-live="polite"></div>
+      </div>
+
+      <label class="field" for="level">
+        <span class="field-label">Level</span>
+        <input id="level" type="number" min="1" max="100" step="1">
+      </label>
+
+      <section class="option-group" aria-label="Tooltip toggles">
+        <label class="toggle">
+          <input id="showMinSpeed" type="checkbox">
+          <span class="toggle-ui"></span>
+          <span class="toggle-title">Minimum speed</span>
+        </label>
+
+        <label class="toggle">
+          <input id="showPlusOne" type="checkbox">
+          <span class="toggle-ui"></span>
+          <span class="toggle-title">+1 speed</span>
+        </label>
+
+        <label class="toggle">
+          <input id="showPlusTwo" type="checkbox">
+          <span class="toggle-ui"></span>
+          <span class="toggle-title">+2 speed</span>
+        </label>
+
+        <label class="toggle">
+          <input id="showMinusOne" type="checkbox">
+          <span class="toggle-ui"></span>
+          <span class="toggle-title">-1 speed</span>
+        </label>
+
+        <label class="toggle">
+          <input id="compactTooltip" type="checkbox">
+          <span class="toggle-ui"></span>
+          <span class="toggle-title">Compact tooltip</span>
+        </label>
+
+        <label class="toggle">
+          <input id="coloredLabels" type="checkbox">
+          <span class="toggle-ui"></span>
+          <span class="toggle-title">Colored labels</span>
+        </label>
+      </section>
+
+    </section>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>

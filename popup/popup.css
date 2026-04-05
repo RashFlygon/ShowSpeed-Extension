@@ -1,0 +1,203 @@
+:root {
+  --bg-top: #08131d;
+  --bg-bottom: #0d2230;
+  --panel: rgba(7, 18, 28, 0.9);
+  --panel-border: rgba(159, 202, 228, 0.16);
+  --text: #eef7ff;
+  --muted: #9ab5c8;
+  --accent: #7ee3ff;
+  --accent-strong: #39bfe8;
+  --gold: #f5c85c;
+  --success: #8cffbd;
+  --shadow: rgba(2, 8, 12, 0.42);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-width: 288px;
+}
+
+body {
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top right, rgba(126, 227, 255, 0.16), transparent 38%),
+    radial-gradient(circle at top left, rgba(245, 200, 92, 0.14), transparent 28%),
+    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+}
+
+.shell {
+  width: 294px;
+  padding: 10px;
+}
+
+.hero,
+.panel {
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: 0 24px 40px -28px var(--shadow);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(245, 200, 92, 0.14), transparent 24%),
+    radial-gradient(circle at 15% 20%, rgba(126, 227, 255, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(16, 41, 57, 0.88), rgba(6, 17, 27, 0.92));
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.mascot {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.28));
+}
+
+.panel {
+  margin-top: 8px;
+  padding: 12px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.panel-head h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.status {
+  min-height: 18px;
+  padding: 4px 9px;
+  border: 1px solid rgba(140, 255, 189, 0.18);
+  border-radius: 999px;
+  color: var(--success);
+  font-size: 11px;
+  white-space: nowrap;
+  background: rgba(140, 255, 189, 0.08);
+}
+
+.status:empty {
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+}
+
+.field {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+input[type="number"] {
+  width: 100%;
+  height: 38px;
+  padding: 0 11px;
+  border: 1px solid rgba(159, 202, 228, 0.2);
+  border-radius: 14px;
+  background: rgba(3, 11, 18, 0.78);
+  color: var(--text);
+  outline: none;
+  font-size: 15px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+input[type="number"]:focus {
+  border-color: rgba(126, 227, 255, 0.72);
+  box-shadow: 0 0 0 4px rgba(126, 227, 255, 0.14);
+}
+
+.option-group {
+  display: grid;
+  gap: 7px;
+}
+
+.toggle {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid rgba(159, 202, 228, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+
+.toggle:hover {
+  transform: translateY(-1px);
+  border-color: rgba(126, 227, 255, 0.22);
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-ui {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(154, 181, 200, 0.22);
+  transition: background 160ms ease, box-shadow 160ms ease;
+}
+
+.toggle-ui::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffffff, #dce5ed);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
+  transition: transform 160ms ease;
+}
+
+.toggle input:checked + .toggle-ui {
+  background: linear-gradient(90deg, var(--gold), var(--accent-strong));
+  box-shadow: 0 0 0 4px rgba(57, 191, 232, 0.12);
+}
+
+.toggle input:checked + .toggle-ui::after {
+  transform: translateX(20px);
+}
+
+.toggle-title {
+  font-size: 12px;
+  font-weight: 700;
+}
