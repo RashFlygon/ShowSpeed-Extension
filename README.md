@@ -1,12 +1,12 @@
 # ShowSpeed
 
-ShowSpeed is a Chrome extension for Pokemon Showdown that adds fast, readable Speed breakpoints directly into the teambuilder.
+ShowSpeed is a Chrome extension for Pokemon Showdown that adds on-hover tooltip speed tiers directly into the teambuilder.
 
-It gives you:
-- Hover tooltips for base Speed and current Speed values
-- Optional boosted and minimum Speed lines
-- A Speed creep helper that calculates the EVs needed to outspeed a target
-- A compact popup for enabling or disabling each view
+Features:
+- Hover tooltips for base Speed and current Speed values, boosted speed values and minimum speed values
+- A Speed Creep widget that calculates the EVs needed to outspeed a target
+- A popup for enabling or disabling each view
+- Auto choice scarf speed values
 
 ## Features
 
@@ -58,7 +58,7 @@ ShowSpeed will display common benchmarks like positive-nature max Speed, neutral
 Inside a set:
 - enter a target Pokemon
 - choose the target level
-- choose the target benchmark
+- choose the target speed benchmark (+252, 252 neutral, unboosted)
 - optionally include target boosts or your own boost
 - click `Apply`
 
@@ -98,6 +98,6 @@ Privacy policy:
 
 ## Credits
 
-Developed by rasche.
+Developed by Rasche.
 
-Thanks to Jamboe for the help.
+Thanks to ElderFlower for the help.
