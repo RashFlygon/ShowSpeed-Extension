@@ -13,24 +13,14 @@ Features:
 ### Hover speed tooltips
 Hover a Speed stat or a Pokemon in search results to instantly see common Speed tiers at your chosen level.
 
-![Hover tooltip example 1](assets/readme-images/on-hover-view-1.png)
-
-![Hover tooltip example 2](assets/readme-images/on-hover-view-2.png)
-
 ### Teambuilder speed context
 While editing a set, ShowSpeed can show both standard Speed benchmarks and the current set's real Speed so you can compare at a glance.
-
-![Teambuilder tooltip on current set](assets/readme-images/teambuilder-view-1.png)
 
 ### Speed creep helper
 Type a target Pokemon, choose the benchmark you want to beat, and let ShowSpeed set the Speed EVs needed to outspeed it.
 
-![Speed creep helper](assets/readme-images/teambuilder-view-2.jpg)
-
 ### Popup settings
 Use the extension popup to set the level and choose which tooltip sections appear.
-
-![Popup settings](assets/readme-images/popup-config.png)
 
 ## Usage Guide
 
@@ -86,7 +76,6 @@ ShowSpeed runs on:
 - `scripts/content.js` bridge between extension storage and the page
 - `scripts/injected.js` in-page tooltip and Speed creep logic
 - `icons/` extension icons
-- `assets/readme-images/` screenshots used in this README
 - `docs/` GitHub Pages privacy policy
 
 ## Privacy
