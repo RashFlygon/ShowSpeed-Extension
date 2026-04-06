@@ -2,22 +2,16 @@
 
 ShowSpeed is a Chrome extension for Pokemon Showdown that adds on-hover tooltip speed tiers directly into the teambuilder.
 
-Features:
-- Hover tooltips for base Speed and current Speed values, boosted speed values and minimum speed values
-- A Speed Creep widget that calculates the EVs needed to outspeed a target
-- A popup for enabling or disabling each view
-- Auto choice scarf speed values
-
 ## Features
 
 ### Hover speed tooltips
 Hover a Speed stat or a Pokemon in search results to instantly see common Speed tiers at your chosen level.
 
 ### Teambuilder speed context
-While editing a set, ShowSpeed can show both standard Speed benchmarks and the current set's real Speed so you can compare at a glance.
+While editing a set or choosing a new pokemon to add in the teambuilder, ShowSpeed can show tooltips for common speed tiers and also Auto-Show speed boost modifers such as choice scarf.
 
 ### Speed creep helper
-Type a target Pokemon, choose the benchmark you want to beat, and let ShowSpeed set the Speed EVs needed to outspeed it.
+Type a target Pokemon, choose the benchmark you want to beat, and let ShowSpeed set the Speed EVs needed to speed creep it.
 
 ### Popup settings
 Use the extension popup to set the level and choose which tooltip sections appear.
@@ -25,7 +19,7 @@ Use the extension popup to set the level and choose which tooltip sections appea
 ## Usage Guide
 
 ### 1. Open the popup
-Click the ShowSpeed extension icon in Chrome to open the settings popup.
+Click the ShowSpeed extension icon to open the settings popup menu.
 
 ### 2. Choose your defaults
 Set the battle level you care about, then toggle any of these options:
@@ -42,7 +36,7 @@ Open Pokemon Showdown teambuilder and hover:
 - the base Speed stat on a set
 - the current Speed value on a set
 
-ShowSpeed will display common benchmarks like positive-nature max Speed, neutral max Speed, unboosted Speed, and any enabled boost sections.
+ShowSpeed will display common benchmarks like positive-nature max Speed, neutral max Speed, unboosted Speed, and any enabled speed modifier sections.
 
 ### 4. Use the Speed creep tool
 Inside a set:
