@@ -6,6 +6,10 @@
   const CREEP_BOX_ID = 'ps-speed-creep-box';
   const CREEP_STATE_KEY = 'psSpeedHoverCreepState';
   const SUGGEST_BOX_ID = 'ps-speed-creep-suggest';
+  const JUMP_POINTS_KEY = 'psSpeedHoverShowJumpPoints';
+  const JUMP_TOGGLE_ID = 'ps-speed-jump-toggle';
+  const JUMP_OVERLAY_CLASS = 'ps-speed-jump-overlay';
+  const STAT_ORDER = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
   const DEFAULTS = {
     level: 100,
     showMinSpeed: false,
@@ -14,7 +18,12 @@
     showMinusOne: false,
     compactTooltip: false,
     coloredLabels: true,
+    defaultChampionsMode: false,
   };
+  const CHAMPIONS_LEVEL = 50;
+  const CHAMPIONS_IV = 31;
+  const CHAMPIONS_MAX_POINTS = 32;
+  const CHAMPIONS_MODE_TEXT = 'Champions mode';
 
   let settings = { ...DEFAULTS };
   let tooltipEl = null;
@@ -221,6 +230,18 @@
         height: 12px;
         margin: 0;
       }
+      #${CREEP_BOX_ID} .pssc-mode {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--pssc-muted);
+        white-space: nowrap;
+      }
+      #${CREEP_BOX_ID} .pssc-mode input {
+        width: 12px;
+        height: 12px;
+        margin: 0;
+      }
       #${CREEP_BOX_ID} .pssc-suggest-wrap { position: relative; }
       .pssc-suggest {
         position: fixed;
@@ -300,6 +321,41 @@
         color: #9ee37d;
         font-weight: 700;
       }
+      #${JUMP_TOGGLE_ID} {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-left: 8px;
+        padding: 2px 7px;
+        border: 1px solid rgba(255,255,255,.18);
+        border-radius: 999px;
+        background: rgba(12,18,26,.45);
+        color: rgba(255,255,255,.9);
+        font: 11px Verdana, Arial, sans-serif;
+        vertical-align: middle;
+        user-select: none;
+      }
+      #${JUMP_TOGGLE_ID} input {
+        width: 12px;
+        height: 12px;
+        margin: 0;
+      }
+      .${JUMP_OVERLAY_CLASS} {
+        position: absolute;
+        height: 8px;
+        pointer-events: none;
+        z-index: 3;
+      }
+      .${JUMP_OVERLAY_CLASS} .ps-speed-jump-marker {
+        position: absolute;
+        top: 50%;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #ff3131;
+        box-shadow: 0 0 0 1px rgba(60,0,0,.55), 0 0 6px rgba(255,49,49,.7);
+        transform: translate(-50%, -50%);
+      }
     `;
     document.head.appendChild(style);
   }
@@ -363,14 +419,135 @@
     return toID(getCurrentItemName()) === 'choicescarf';
   }
 
+  function isChampionsFormatName(text) {
+    return /\[champions\]|^champions/i.test(String(text || '').trim());
+  }
+
+  function getTextValue(el) {
+    if (!el) return '';
+    if (el.tagName === 'SELECT') {
+      return el.selectedOptions?.[0]?.textContent?.trim() || el.value || '';
+    }
+    const text = el.textContent?.trim() || '';
+    if (isChampionsFormatName(text)) return text;
+    if (el.tagName === 'BUTTON') return text || el.value || '';
+    if ('value' in el && typeof el.value === 'string' && el.value.trim()) return el.value.trim();
+    return text;
+  }
+
+  function getCurrentTeambuilderRoom() {
+    const rooms = window.app?.rooms || {};
+    for (const id of Object.keys(rooms)) {
+      const room = rooms[id];
+      if (room?.type === 'teambuilder' && room.curTeam) return room;
+    }
+    return null;
+  }
+
+  function getFormatCandidatesFromId(formatId) {
+    const id = String(formatId || '').trim();
+    if (!id) return [];
+    const candidates = [id];
+    const format = window.BattleFormats?.[id] || window.BattleFormats?.[toID(id)];
+    if (format) {
+      candidates.push(format.name, format.section, format.searchShow, format.team, format.challengeShow);
+    }
+    try {
+      if (window.BattleLog?.escapeFormat) candidates.push(window.BattleLog.escapeFormat(id));
+    } catch {}
+    return candidates.filter(Boolean).map(value => String(value).replace(/<[^>]*>/g, '').trim());
+  }
+
+  function getCurrentFormatName() {
+    let fallback = '';
+    const teambuilderRoom = getCurrentTeambuilderRoom();
+    for (const text of getFormatCandidatesFromId(teambuilderRoom?.curTeam?.format)) {
+      if (isChampionsFormatName(text)) return text;
+      if (!fallback) fallback = text;
+    }
+
+    const selectors = [
+      'input[name="format"]',
+      'select[name="format"]',
+      'select',
+      'button[name="format"]',
+      'button.formatselect',
+      '.formatselect',
+      '.teambuilder-format input',
+      '.teambuilder-format button',
+      '.teamedit input[name="format"]',
+      '.teamedit button[name="format"]',
+      '.folderlist .cur',
+      '.folderpane .cur'
+    ];
+    for (const selector of selectors) {
+      const els = document.querySelectorAll(selector);
+      for (const el of els) {
+        const text = getTextValue(el);
+        if (!text) continue;
+        if (isChampionsFormatName(text)) return text;
+        if (!fallback) fallback = text;
+      }
+    }
+    return fallback;
+  }
+
+  function isChampionsModeActive() {
+    return isChampionsFormatName(getCurrentFormatName()) || !!settings.defaultChampionsMode;
+  }
+
+  function isCurrentChampionsFormat() {
+    return isChampionsFormatName(getCurrentFormatName());
+  }
+
   function clampLevel(level) {
     return Math.max(1, Math.min(100, Number(level) || 100));
   }
 
-  function calcSpeed(base, ev = 0, iv = 31, nature = 1, level = settings.level || 100) {
-    const lvl = clampLevel(level);
-    const raw = Math.floor(((2 * base + iv + Math.floor(ev / 4)) * lvl) / 100) + 5;
+  function clampEv(ev) {
+    return Math.max(0, Math.min(252, Number(ev) || 0));
+  }
+
+  function clampIv(iv) {
+    return Math.max(0, Math.min(31, Number(iv) || 0));
+  }
+
+  function clampChampionsPoints(points) {
+    return Math.max(0, Math.min(CHAMPIONS_MAX_POINTS, Number(points) || 0));
+  }
+
+  function championsPointsToEv(points) {
+    return Math.floor((clampChampionsPoints(points) * 252) / CHAMPIONS_MAX_POINTS);
+  }
+
+  function getModeState(options = {}) {
+    const championsMode = options.championsMode ?? isChampionsModeActive();
+    return {
+      championsMode,
+      level: championsMode ? CHAMPIONS_LEVEL : clampLevel(options.level ?? settings.level ?? 100),
+      iv: championsMode ? CHAMPIONS_IV : clampIv(options.iv ?? 31),
+      maxInvestment: championsMode ? CHAMPIONS_MAX_POINTS : 252,
+      investmentLabel: championsMode ? 'Stat Points' : 'EVs',
+    };
+  }
+
+  function investmentToEv(investment, mode) {
+    return mode.championsMode ? championsPointsToEv(investment) : clampEv(investment);
+  }
+
+  function calcSpeed(base, investment = 0, iv = 31, nature = 1, options = {}) {
+    const mode = getModeState({ ...options, iv });
+    const lvl = mode.level;
+    const actualIv = mode.iv;
+    const ev = investmentToEv(investment, mode);
+    const raw = Math.floor(((2 * base + actualIv + Math.floor(ev / 4)) * lvl) / 100) + 5;
     return Math.floor(raw * nature);
+  }
+
+  function calcRawNonHpStat(base, investment = 0, iv = 31, options = {}) {
+    const mode = getModeState({ ...options, iv });
+    const ev = investmentToEv(investment, mode);
+    return Math.floor(((2 * base + mode.iv + Math.floor(ev / 4)) * mode.level) / 100) + 5;
   }
 
   function applyModifier(speed, key) {
@@ -446,6 +623,77 @@
     }
     if (currentSpeed != null) {
       html += `<div class="psh-section">${renderRows([{ label: 'Current set', value: currentSpeed }])}</div>`;
+    }
+    return html;
+  }
+
+  function buildModeRows(species, options = {}) {
+    const mode = getModeState(options);
+    const base = species.baseStats.spe;
+    const rows = [
+      {
+        label: mode.championsMode ? 'Positive max speed' : 'Positive 252 speed',
+        value: calcSpeed(base, mode.maxInvestment, mode.iv, 1.1, mode),
+        tone: 'plus-spe',
+      },
+      {
+        label: mode.championsMode ? 'Neutral max' : 'Neutral 252',
+        value: calcSpeed(base, mode.maxInvestment, mode.iv, 1.0, mode),
+        tone: 'neutral',
+      },
+      {
+        label: 'Unboosted',
+        value: calcSpeed(base, 0, mode.iv, 1.0, mode),
+        tone: 'unboosted',
+      },
+    ];
+    if (settings.showMinSpeed) {
+      rows.push({
+        label: 'Minimum',
+        value: calcSpeed(base, 0, mode.championsMode ? CHAMPIONS_IV : 0, 0.9, mode),
+        tone: 'minimum',
+      });
+    }
+    return rows;
+  }
+
+  function getModeValueClass(tone) {
+    return {
+      'plus-spe': 'psh-num-plus-spe',
+      neutral: 'psh-num-neutral',
+      unboosted: 'psh-num-unboosted',
+      minimum: 'psh-num-minimum',
+      current: 'psh-num-current',
+    }[tone] || '';
+  }
+
+  function renderModeRows(rows) {
+    return rows.map(row => {
+      const cls = settings.coloredLabels ? getModeValueClass(row.tone) : '';
+      const valueHtml = cls
+        ? `<span class="${cls}">${escapeHtml(row.value)}</span>`
+        : escapeHtml(row.value);
+      return `<div class="psh-row"><div class="psh-label">${escapeHtml(row.label)}</div><div class="psh-value">${valueHtml}</div></div>`;
+    }).join('');
+  }
+
+  function buildTooltipForMode(species, currentSpeed = null, options = {}) {
+    const mode = getModeState(options);
+    const tiers = buildModeRows(species, mode);
+    const modeSuffix = mode.championsMode ? `, ${CHAMPIONS_MODE_TEXT}` : '';
+    let html = `<div class="psh-header">${escapeHtml(species.name)} - Base Spe ${escapeHtml(species.baseStats.spe)} (Lv ${escapeHtml(mode.level)}${escapeHtml(modeSuffix)})</div>`;
+    html += `<div class="psh-section">${renderModeRows(tiers)}</div>`;
+    if (settings.showPlusOne) {
+      html += `<div class="psh-section"><div class="psh-section-title">+1 Speed</div>${renderModeRows(tiers.map(line => ({ ...line, value: applyModifier(line.value, 'plusOne') })))}</div>`;
+    }
+    if (settings.showPlusTwo) {
+      html += `<div class="psh-section"><div class="psh-section-title">+2 Speed</div>${renderModeRows(tiers.map(line => ({ ...line, value: applyModifier(line.value, 'plusTwo') })))}</div>`;
+    }
+    if (settings.showMinusOne) {
+      html += `<div class="psh-section"><div class="psh-section-title">-1 Speed</div>${renderModeRows(tiers.map(line => ({ ...line, value: applyModifier(line.value, 'minusOne') })))}</div>`;
+    }
+    if (currentSpeed != null) {
+      html += `<div class="psh-section">${renderModeRows([{ label: 'Current set', value: currentSpeed, tone: 'current' }])}</div>`;
     }
     return html;
   }
@@ -546,8 +794,137 @@
     currentEl.insertAdjacentElement('afterend', scarfEl);
   }
 
+  function readJumpPointsVisible() {
+    try {
+      const value = localStorage.getItem(JUMP_POINTS_KEY);
+      return value == null ? true : value === 'true';
+    } catch {
+      return true;
+    }
+  }
+
+  function saveJumpPointsVisible(visible) {
+    try { localStorage.setItem(JUMP_POINTS_KEY, visible ? 'true' : 'false'); } catch {}
+  }
+
+  function maybeBindJumpPointsToggle() {
+    const teamNameInput = document.querySelector('input.teamnameedit');
+    if (!teamNameInput) return;
+    let toggle = document.getElementById(JUMP_TOGGLE_ID);
+    if (!toggle) {
+      toggle = document.createElement('label');
+      toggle.id = JUMP_TOGGLE_ID;
+      toggle.innerHTML = `<input type="checkbox" /> <span>Jump points</span>`;
+      const input = toggle.querySelector('input');
+      input.checked = readJumpPointsVisible();
+      input.addEventListener('change', () => {
+        saveJumpPointsVisible(input.checked);
+        schedule();
+      });
+      teamNameInput.insertAdjacentElement('afterend', toggle);
+    } else {
+      const input = toggle.querySelector('input');
+      if (input) input.checked = readJumpPointsVisible();
+    }
+  }
+
+  function clearJumpPointOverlays(root = document) {
+    root.querySelectorAll(`.${JUMP_OVERLAY_CLASS}`).forEach(el => el.remove());
+  }
+
+  function getStatSlider(statForm, statInput, statId) {
+    let node = statInput;
+    for (let i = 0; i < 6 && node && node !== statForm; i++, node = node.parentElement) {
+      const slider = node.querySelector?.('input.evslider');
+      if (slider) return slider;
+    }
+    const sliders = Array.from(statForm.querySelectorAll('input.evslider'));
+    return sliders[STAT_ORDER.indexOf(statId)] || null;
+  }
+
+  function getJumpPointInvestments(base, iv, mode) {
+    const points = [];
+    const step = mode.championsMode ? 1 : 4;
+    let previousRaw = calcRawNonHpStat(base, 0, iv, mode);
+    let previousBoosted = Math.floor(previousRaw * 1.1);
+    for (let investment = step; investment <= mode.maxInvestment; investment += step) {
+      const raw = calcRawNonHpStat(base, investment, iv, mode);
+      const boosted = Math.floor(raw * 1.1);
+      if ((boosted - previousBoosted) > (raw - previousRaw)) points.push(investment);
+      previousRaw = raw;
+      previousBoosted = boosted;
+    }
+    return points;
+  }
+
+  function renderJumpPointOverlay(slider, investments, maxInvestment) {
+    if (!slider || !maxInvestment) return;
+    const parent = slider.parentElement;
+    if (!parent) return;
+    if (!investments.length) {
+      parent.querySelectorAll(`.${JUMP_OVERLAY_CLASS}`).forEach(el => el.remove());
+      return;
+    }
+    if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+    const left = slider.offsetLeft;
+    const top = slider.offsetTop + Math.max(0, (slider.offsetHeight - 8) / 2);
+    const width = slider.offsetWidth;
+    const signature = `${maxInvestment}:${left}:${top}:${width}:${investments.join(',')}`;
+    const existing = parent.querySelector(`.${JUMP_OVERLAY_CLASS}`);
+    if (existing?.dataset.signature === signature) return;
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('span');
+    overlay.className = JUMP_OVERLAY_CLASS;
+    overlay.dataset.signature = signature;
+    overlay.style.left = `${left}px`;
+    overlay.style.top = `${top}px`;
+    overlay.style.width = `${width}px`;
+    for (const investment of investments) {
+      const marker = document.createElement('span');
+      marker.className = 'ps-speed-jump-marker';
+      marker.title = `Jump point: ${investment} ${maxInvestment === CHAMPIONS_MAX_POINTS ? 'Stat Points' : 'EVs'}`;
+      marker.style.left = `${(investment / maxInvestment) * 100}%`;
+      overlay.appendChild(marker);
+    }
+    parent.appendChild(overlay);
+  }
+
+  function maybeRenderJumpPoints() {
+    const species = getCurrentSpecies();
+    const statForm = document.querySelector('input[name="stat-spe"]')?.closest('.statform');
+    const natureSelect = document.querySelector('select[name="nature"]');
+    if (!species || !statForm || !natureSelect) {
+      clearJumpPointOverlays();
+      return;
+    }
+    if (!readJumpPointsVisible()) {
+      clearJumpPointOverlays(statForm);
+      return;
+    }
+
+    const mode = getModeState();
+    const activeSliderParents = new Set();
+    for (const statId of STAT_ORDER) {
+      if (statId === 'hp') continue;
+      if (getNatureMultiplier(natureSelect.value, statId) <= 1) continue;
+      const statInput = statForm.querySelector(`input[name="stat-${statId}"]`);
+      const ivInput = statForm.querySelector(`input[name="iv-${statId}"]`);
+      const slider = statInput ? getStatSlider(statForm, statInput, statId) : null;
+      if (!slider) continue;
+      activeSliderParents.add(slider.parentElement);
+      const iv = mode.championsMode ? CHAMPIONS_IV : Math.max(0, parseInt(String(ivInput?.value || '').replace(/[^\d]/g, ''), 10) || 31);
+      const investments = getJumpPointInvestments(species.baseStats[statId], iv, mode);
+      renderJumpPointOverlay(slider, investments, mode.maxInvestment);
+    }
+    statForm.querySelectorAll(`.${JUMP_OVERLAY_CLASS}`).forEach(overlay => {
+      if (!activeSliderParents.has(overlay.parentElement)) overlay.remove();
+    });
+  }
+
   function maybeBindSetView() {
     const species = getCurrentSpecies();
+    const championsMode = isChampionsModeActive();
     if (!species) return;
     const statInput = document.querySelector('input[name="stat-spe"]');
     const ivInput = document.querySelector('input[name="iv-spe"]');
@@ -555,29 +932,23 @@
     if (!statInput || !ivInput || !natureSelect) return;
 
     const statForm = statInput.closest('.statform') || statInput.closest('form') || document.body;
-    const ev = Math.max(0, parseInt(String(statInput.value || '').replace(/[^\d]/g, ''), 10) || 0);
-    const iv = Math.max(0, parseInt(String(ivInput.value || '').replace(/[^\d]/g, ''), 10) || 31);
+    const investment = Math.max(0, parseInt(String(statInput.value || '').replace(/[^\d]/g, ''), 10) || 0);
+    const iv = championsMode ? CHAMPIONS_IV : Math.max(0, parseInt(String(ivInput.value || '').replace(/[^\d]/g, ''), 10) || 31);
     const natureMult = getNatureMultiplier(natureSelect.value, 'spe');
-    const currentSpeed = calcSpeed(species.baseStats.spe, ev, iv, natureMult);
-    const tooltip = buildTooltip(species, currentSpeed);
+    const currentSpeed = calcSpeed(species.baseStats.spe, investment, iv, natureMult, { championsMode });
+    const tooltip = buildTooltipForMode(species, currentSpeed, { championsMode });
 
-    const baseMatches = findElementsByExactText(statForm, species.baseStats.spe);
-    if (baseMatches.length) {
-      const bestBase = baseMatches.sort((a, b) => scoreRightmost(a) - scoreRightmost(b))[0];
-      bindTooltip(bestBase, tooltip);
-      addHoverHint(bestBase);
+    const speedLabelMatches = getDeepElements(statForm).filter(el => /^speed$/i.test((el.textContent || '').trim()));
+    for (const el of speedLabelMatches) {
+      bindTooltip(el, tooltip);
+      addHoverHint(el);
     }
 
     const currentMatches = findElementsByExactText(statForm, currentSpeed);
     if (currentMatches.length) {
       const bestCurrent = currentMatches.sort((a, b) => scoreRightmost(b) - scoreRightmost(a))[0];
-      bindTooltip(bestCurrent, tooltip);
-      addHoverHint(bestCurrent);
       updateScarfIndicator(bestCurrent, currentSpeed);
     }
-
-    const speedLabelMatches = getDeepElements(statForm).filter(el => /^speed$/i.test((el.textContent || '').trim()));
-    for (const el of speedLabelMatches) bindTooltip(el, tooltip);
   }
 
   // Search results
@@ -597,10 +968,11 @@
 
   function maybeBindSearchRows() {
     const rows = Array.from(document.querySelectorAll('.utilichart [data-entry^="pokemon|"], .utilichart a'));
+    const championsMode = isChampionsModeActive();
     for (const row of rows) {
       const species = getRowSpecies(row);
       if (!species) continue;
-      bindTooltip(row, buildTooltip(species));
+      bindTooltip(row, buildTooltipForMode(species, null, { championsMode }));
     }
   }
 
@@ -618,13 +990,14 @@
     try { localStorage.setItem(CREEP_STATE_KEY, JSON.stringify(next)); } catch {}
   }
 
-  function getTierTargetSpeed(species, tier, boost) {
+  function getTierTargetSpeed(species, tier, boost, options = {}) {
+    const mode = getModeState(options);
     const base = species.baseStats.spe;
     let speed = tier === 'positive'
-      ? calcSpeed(base, 252, 31, 1.1)
+      ? calcSpeed(base, mode.maxInvestment, mode.iv, 1.1, mode)
       : tier === 'neutral'
-        ? calcSpeed(base, 252, 31, 1.0)
-        : calcSpeed(base, 0, 31, 1.0);
+        ? calcSpeed(base, mode.maxInvestment, mode.iv, 1.0, mode)
+        : calcSpeed(base, 0, mode.iv, 1.0, mode);
     if (boost === 'plusTwo') return applyModifier(speed, 'plusTwo');
     if (boost === 'plusOne') return applyModifier(speed, 'plusOne');
     return speed;
@@ -761,10 +1134,12 @@
     return true;
   }
 
-  function findSpeedCreepEv(ownSpecies, iv, natureMult, targetSpeed, selfBoost = 'none') {
-    for (let ev = 0; ev <= 252; ev += 4) {
-      const ownSpeed = applyModifier(calcSpeed(ownSpecies.baseStats.spe, ev, iv, natureMult), selfBoost);
-      if (ownSpeed > targetSpeed) return ev;
+  function findSpeedCreepInvestment(ownSpecies, iv, natureMult, targetSpeed, selfBoost = 'none', options = {}) {
+    const mode = getModeState({ ...options, iv });
+    const step = mode.championsMode ? 1 : 4;
+    for (let investment = 0; investment <= mode.maxInvestment; investment += step) {
+      const ownSpeed = applyModifier(calcSpeed(ownSpecies.baseStats.spe, investment, mode.iv, natureMult, mode), selfBoost);
+      if (ownSpeed > targetSpeed) return investment;
     }
     return null;
   }
@@ -784,9 +1159,9 @@
     else el.value = value;
   }
 
-  function setSpeedEvInputValue(statInput, evValue, natureSelect) {
+  function setSpeedInvestmentInputValue(statInput, value, natureSelect) {
     const suffix = getSpeedNatureSuffix(natureSelect);
-    setNativeValue(statInput, `${evValue}${suffix}`);
+    setNativeValue(statInput, `${value}${suffix}`);
   }
 
   function triggerInput(el) {
@@ -837,6 +1212,7 @@
             <label><input type="checkbox" class="pssc-plus1" /> Target +1</label>
             <label><input type="checkbox" class="pssc-plus2" /> Target +2</label>
           </div>
+          <label class="pssc-mode"><input type="checkbox" class="pssc-champions" /> Use Champions mode</label>
         </div>
         <div class="pssc-footer">
           <div class="pssc-footer-left">
@@ -868,6 +1244,7 @@
       const suggestBox = ensureSuggestOverlay();
       const plusOneInput = box.querySelector('.pssc-plus1');
       const plusTwoInput = box.querySelector('.pssc-plus2');
+      const championsInput = box.querySelector('.pssc-champions');
       const selfBoostSelect = box.querySelector('.pssc-selfboost');
       const targetSpeedEl = box.querySelector('.pssc-targetspeed');
       const status = box.querySelector('.pssc-status');
@@ -876,9 +1253,11 @@
       if (saved.tier && tierSelect.querySelector(`option[value="${saved.tier}"]`)) tierSelect.value = saved.tier;
       plusOneInput.checked = saved.boost === 'plusOne';
       plusTwoInput.checked = saved.boost === 'plusTwo';
+      championsInput.checked = isCurrentChampionsFormat();
+      box.dataset.psscFormatChampions = championsInput.checked ? '1' : '0';
       selfBoostSelect.value = ['none','plusOne','plusTwo'].includes(saved.selfBoost) ? saved.selfBoost : 'none';
       if (hasChoiceScarf() && (!saved.selfBoost || saved.selfBoost === 'none')) selfBoostSelect.value = 'plusOne';
-      levelInput.value = String(clampLevel(saved.level || settings.level || 100));
+      levelInput.value = String(championsInput.checked ? CHAMPIONS_LEVEL : clampLevel(saved.level || settings.level || 100));
 
       const pickSuggestion = (name) => {
         targetInput.value = name;
@@ -888,19 +1267,41 @@
         targetInput.focus();
       };
 
+      const syncTierLabels = () => {
+        const isChampions = championsInput.checked;
+        const positiveOption = tierSelect.querySelector('option[value="positive"]');
+        const neutralOption = tierSelect.querySelector('option[value="neutral"]');
+        if (positiveOption) positiveOption.textContent = isChampions ? 'Positive max speed' : 'Positive 252 speed';
+        if (neutralOption) neutralOption.textContent = isChampions ? 'Neutral max' : 'Neutral 252';
+      };
+
+      const syncModeUi = () => {
+        syncTierLabels();
+        if (championsInput.checked) {
+          levelInput.value = String(CHAMPIONS_LEVEL);
+          levelInput.disabled = true;
+          levelInput.title = 'Champions formats are always level 50.';
+          help.textContent = isCurrentChampionsFormat()
+            ? ''
+            : 'Warning: this team is not currently set to a Champions format.';
+        } else {
+          levelInput.disabled = false;
+          levelInput.title = '';
+          levelInput.value = '100';
+          if (/not currently set to a Champions format/i.test(help.textContent || '')) help.textContent = '';
+        }
+      };
+
       const updateTargetSpeedLabel = () => {
         const targetSpecies = getSpeciesFromName(targetInput.value.trim());
         if (!targetSpecies) {
           targetSpeedEl.textContent = '';
           return;
         }
-        // Temporarily borrow the chosen level so the preview matches the creep box, not the global popup setting.
+        const championsMode = championsInput.checked;
         const boost = plusTwoInput.checked ? 'plusTwo' : plusOneInput.checked ? 'plusOne' : 'none';
-        const chosenLevel = clampLevel(levelInput.value || settings.level || 100);
-        const previousLevel = settings.level;
-        settings.level = chosenLevel;
-        const targetSpeed = getTierTargetSpeed(targetSpecies, tierSelect.value, boost);
-        settings.level = previousLevel;
+        const chosenLevel = championsMode ? CHAMPIONS_LEVEL : clampLevel(levelInput.value || settings.level || 100);
+        const targetSpeed = getTierTargetSpeed(targetSpecies, tierSelect.value, boost, { championsMode, level: chosenLevel });
         targetSpeedEl.textContent = `(${targetSpeed})`;
       };
 
@@ -945,6 +1346,11 @@
         saveCreepState({ boost: plusTwoInput.checked ? 'plusTwo' : plusOneInput.checked ? 'plusOne' : 'none' });
         updateTargetSpeedLabel();
       });
+      championsInput.addEventListener('change', () => {
+        syncModeUi();
+        saveCreepState({ championsMode: championsInput.checked, level: championsInput.checked ? CHAMPIONS_LEVEL : 100 });
+        updateTargetSpeedLabel();
+      });
       levelInput.addEventListener('input', () => {
         const level = clampLevel(levelInput.value);
         levelInput.value = String(level);
@@ -953,6 +1359,7 @@
         updateTargetSpeedLabel();
       });
       selfBoostSelect.addEventListener('change', () => saveCreepState({ selfBoost: selfBoostSelect.value }));
+      syncModeUi();
       updateTargetSpeedLabel();
       box.querySelector('.pssc-apply').addEventListener('click', () => {
         help.textContent = '';
@@ -964,59 +1371,96 @@
           return;
         }
 
-        const chosenLevel = clampLevel(levelInput.value || settings.level || 100);
+        const championsMode = championsInput.checked;
+        const chosenLevel = championsMode ? CHAMPIONS_LEVEL : clampLevel(levelInput.value || settings.level || 100);
         levelInput.value = String(chosenLevel);
-        settings.level = chosenLevel;
-        saveCreepState({ level: chosenLevel });
+        if (!championsMode) settings.level = chosenLevel;
+        saveCreepState({ level: chosenLevel, championsMode });
 
-        const iv = Math.max(0, parseInt(String(ivInput.value || '').replace(/[^\d]/g, ''), 10) || 31);
+        const iv = championsMode ? CHAMPIONS_IV : Math.max(0, parseInt(String(ivInput.value || '').replace(/[^\d]/g, ''), 10) || 31);
         const currentNatureMult = getNatureMultiplier(natureSelect.value, 'spe');
         const boost = plusTwoInput.checked ? 'plusTwo' : plusOneInput.checked ? 'plusOne' : 'none';
         const selfBoost = selfBoostSelect.value || 'none';
-        const targetSpeed = getTierTargetSpeed(targetSpecies, tierSelect.value, boost);
+        const targetSpeed = getTierTargetSpeed(targetSpecies, tierSelect.value, boost, { championsMode, level: chosenLevel });
 
-        let neededEv = findSpeedCreepEv(species, iv, currentNatureMult, targetSpeed, selfBoost);
-        let usedNatureMult = currentNatureMult;
+        let neededInvestment = findSpeedCreepInvestment(species, iv, currentNatureMult, targetSpeed, selfBoost, { championsMode, level: chosenLevel });
         let needsPositiveNatureWarning = false;
 
-        if (neededEv == null && currentNatureMult <= 1.0) {
-          const positiveEv = findSpeedCreepEv(species, iv, 1.1, targetSpeed, selfBoost);
-          if (positiveEv != null) {
-            neededEv = positiveEv;
-            usedNatureMult = 1.1;
+        if (neededInvestment == null && currentNatureMult <= 1.0) {
+          const positiveInvestment = findSpeedCreepInvestment(species, iv, 1.1, targetSpeed, selfBoost, { championsMode, level: chosenLevel });
+          if (positiveInvestment != null) {
+            neededInvestment = positiveInvestment;
             needsPositiveNatureWarning = true;
           }
         }
 
-        if (neededEv == null) {
-          status.textContent = `Cannot outspeed ${targetSpecies.name} at this level with 252 EVs.`;
+        if (neededInvestment == null) {
+          status.textContent = championsMode
+            ? `Cannot outspeed ${targetSpecies.name} at level 50 with ${CHAMPIONS_MAX_POINTS} Stat Points.`
+            : `Cannot outspeed ${targetSpecies.name} at this level with 252 EVs.`;
           return;
         }
 
-        setSpeedEvInputValue(statInput, neededEv, natureSelect);
+        setSpeedInvestmentInputValue(statInput, neededInvestment, natureSelect);
         triggerInput(statInput);
         setTimeout(() => {
           const currentVal = parseInt(String(statInput.value || '').replace(/[^\d]/g, ''), 10) || 0;
-          if (currentVal !== neededEv) {
-            setSpeedEvInputValue(statInput, neededEv, natureSelect);
+          if (currentVal !== neededInvestment) {
+            setSpeedInvestmentInputValue(statInput, neededInvestment, natureSelect);
             triggerInput(statInput);
           }
         }, 30);
-        saveCreepState({ targetName, tier: tierSelect.value, boost, selfBoost });
+        saveCreepState({ targetName, tier: tierSelect.value, boost, selfBoost, championsMode });
 
         const targetBoostText = boost === 'plusTwo' ? ' +2' : boost === 'plusOne' ? ' +1' : '';
         const selfBoostText = selfBoost === 'plusTwo' ? ' while you are +2' : selfBoost === 'plusOne' ? ' while you are +1' : '';
-        status.textContent = `Set ${neededEv} EVs to beat ${targetSpecies.name}${targetBoostText}${selfBoostText} (${targetSpeed}).`; 
+        const unitLabel = championsMode ? 'Stat Points' : 'EVs';
+        status.textContent = `Set ${neededInvestment} ${unitLabel} to beat ${targetSpecies.name}${targetBoostText}${selfBoostText} (${targetSpeed}).`;
+        if (championsMode && !isCurrentChampionsFormat()) {
+          help.textContent = 'Warning: this team is not currently set to a Champions format.';
+        }
         if (needsPositiveNatureWarning) {
-          help.textContent = 'Needs a +Spe nature to actually outspeed this target.';
+          help.textContent = help.textContent
+            ? `${help.textContent} Needs a +Spe nature to actually outspeed this target.`
+            : 'Needs a +Spe nature to actually outspeed this target.';
         }
         schedule();
       });
     }
 
     const selfBoostSelect = box.querySelector('.pssc-selfboost');
+    const championsInput = box.querySelector('.pssc-champions');
+    const levelInput = box.querySelector('.pssc-level');
+    const help = box.querySelector('.pssc-help');
     if (selfBoostSelect && hasChoiceScarf() && selfBoostSelect.value === 'none') {
       selfBoostSelect.value = 'plusOne';
+    }
+    if (championsInput) {
+      const currentFormatIsChampions = isCurrentChampionsFormat();
+      const wasAutoEnabledByFormat = box.dataset.psscFormatChampions === '1';
+      if (currentFormatIsChampions) {
+        championsInput.checked = true;
+        box.dataset.psscFormatChampions = '1';
+      } else if (wasAutoEnabledByFormat) {
+        championsInput.checked = false;
+        box.dataset.psscFormatChampions = '0';
+        if (help) help.textContent = '';
+      }
+    }
+    if (levelInput) {
+      if (championsInput?.checked) {
+        levelInput.value = String(CHAMPIONS_LEVEL);
+        levelInput.disabled = true;
+        levelInput.title = 'Champions formats are always level 50.';
+        if (help && !isCurrentChampionsFormat()) {
+          help.textContent = 'Warning: this team is not currently set to a Champions format.';
+        }
+      } else {
+        levelInput.disabled = false;
+        levelInput.title = '';
+        levelInput.value = '100';
+        if (help && /not currently set to a Champions format/i.test(help.textContent || '')) help.textContent = '';
+      }
     }
     box.classList.toggle('compact-ui', statForm.clientWidth < 720);
   }
@@ -1026,6 +1470,8 @@
     addStyles();
     ensureTooltip();
     if (activeTarget && !activeTarget.isConnected) hideTooltip(activeTarget);
+    maybeBindJumpPointsToggle();
+    maybeRenderJumpPoints();
     maybeBindSetView();
     maybeBindSearchRows();
     maybeBindSpeedCreepControls();

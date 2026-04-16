@@ -19,7 +19,7 @@
 html,
 body {
   margin: 0;
-  min-width: 244px;
+  min-width: 272px;
 }
 
 body {
@@ -32,8 +32,8 @@ body {
 }
 
 .shell {
-  width: 248px;
-  padding: 8px;
+  width: 276px;
+  padding: 9px;
 }
 
 .hero,
@@ -49,7 +49,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding: 8px 10px;
+  padding: 9px 11px;
   background:
     radial-gradient(circle at 85% 20%, rgba(245, 200, 92, 0.14), transparent 24%),
     radial-gradient(circle at 15% 20%, rgba(126, 227, 255, 0.12), transparent 24%),
@@ -63,6 +63,14 @@ body {
   letter-spacing: -0.04em;
 }
 
+.hero p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .mascot {
   width: 52px;
   height: 52px;
@@ -73,7 +81,7 @@ body {
 
 .panel {
   margin-top: 6px;
-  padding: 9px;
+  padding: 10px;
 }
 
 .panel-head {
@@ -107,15 +115,20 @@ body {
 }
 
 .field {
-  display: block;
-  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: 1fr 78px;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 9px;
 }
 
 .field-label {
   display: block;
-  margin-bottom: 5px;
   font-size: 11px;
   font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 input[type="number"] {
@@ -138,16 +151,28 @@ input[type="number"]:focus {
 
 .option-group {
   display: grid;
-  gap: 5px;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.option-caption {
+  grid-column: 1 / -1;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .toggle {
   position: relative;
   display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 8px;
+  grid-template-columns: 34px 1fr;
+  gap: 7px;
   align-items: center;
-  padding: 7px 8px;
+  min-height: 48px;
+  padding: 7px;
   border: 1px solid rgba(159, 202, 228, 0.12);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.04);
@@ -168,8 +193,8 @@ input[type="number"]:focus {
 
 .toggle-ui {
   position: relative;
-  width: 38px;
-  height: 21px;
+  width: 34px;
+  height: 19px;
   border-radius: 999px;
   background: rgba(154, 181, 200, 0.22);
   transition: background 160ms ease, box-shadow 160ms ease;
@@ -180,8 +205,8 @@ input[type="number"]:focus {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 17px;
-  height: 17px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
   background: linear-gradient(180deg, #ffffff, #dce5ed);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.24);
@@ -194,12 +219,26 @@ input[type="number"]:focus {
 }
 
 .toggle input:checked + .toggle-ui::after {
-  transform: translateX(17px);
+  transform: translateX(15px);
 }
 
 .toggle-title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
+  line-height: 1.18;
+}
+
+.mode-toggle {
+  grid-column: 1 / -1;
+  min-height: 44px;
+  border-color: rgba(245, 200, 92, 0.22);
+  background:
+    radial-gradient(circle at 12% 20%, rgba(245, 200, 92, 0.16), transparent 26%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.mode-toggle .toggle-title {
+  font-size: 11px;
 }
 
 .credit {

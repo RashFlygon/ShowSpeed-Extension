@@ -13,8 +13,14 @@ While editing a set or choosing a new pokemon to add in the teambuilder, ShowSpe
 ### Speed creep helper
 Type a target Pokemon, choose the benchmark you want to beat, and let ShowSpeed set the Speed EVs needed to speed creep it.
 
+### Jump point markers
+ShowSpeed can mark 1.1x nature jump points on the stat sliders so you can see efficient investment breakpoints.
+
 ### Popup settings
 Use the extension popup to set the level and choose which tooltip sections appear.
+
+### Champions mode
+ShowSpeed can automatically switch into Champions mode for formats whose names include `[Champions]`. Champions mode uses level 50, fixed 31 IVs, and Stat Points instead of EVs for speed creep calculations.
 
 ## Usage Guide
 
@@ -29,6 +35,7 @@ Set the battle level you care about, then toggle any of these options:
 - `-1 speed`
 - `Compact tooltip`
 - `Colored labels`
+- `Champions Mode`
 
 ### 3. Use hover tooltips in teambuilder
 Open Pokemon Showdown teambuilder and hover:
@@ -43,10 +50,13 @@ Inside a set:
 - enter a target Pokemon
 - choose the target level
 - choose the target speed benchmark (+252, 252 neutral, unboosted)
+- optionally enable `Use Champions mode` for level 50 / Stat Point calculations
 - optionally include target boosts or your own boost
 - click `Apply`
 
 ShowSpeed will calculate the minimum Speed EVs needed to outspeed that target and apply them to the current set.
+
+Use the `Jump points` checkbox near the team name to show or hide red jump-point markers on the stat sliders.
 
 ## Installation
 

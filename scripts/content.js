@@ -8,6 +8,7 @@
     showMinusOne: false,
     compactTooltip: false,
     coloredLabels: true,
+    defaultChampionsMode: false,
   };
 
   // Forward popup settings into the page context where Showdown data is available.

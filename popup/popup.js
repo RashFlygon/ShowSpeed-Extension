@@ -6,9 +6,10 @@ const DEFAULTS = {
   showMinusOne: false,
   compactTooltip: false,
   coloredLabels: true,
+  defaultChampionsMode: false,
 };
 
-const ids = ['level', 'showMinSpeed', 'showPlusOne', 'showPlusTwo', 'showMinusOne', 'compactTooltip', 'coloredLabels'];
+const ids = ['level', 'showMinSpeed', 'showPlusOne', 'showPlusTwo', 'showMinusOne', 'compactTooltip', 'coloredLabels', 'defaultChampionsMode'];
 const statusEl = document.getElementById('status');
 let statusTimer = null;
 
@@ -32,6 +33,7 @@ function readForm() {
     showMinusOne: document.getElementById('showMinusOne').checked,
     compactTooltip: document.getElementById('compactTooltip').checked,
     coloredLabels: document.getElementById('coloredLabels').checked,
+    defaultChampionsMode: document.getElementById('defaultChampionsMode').checked,
   };
 }
 
@@ -51,6 +53,7 @@ async function init() {
   document.getElementById('showMinusOne').checked = !!settings.showMinusOne;
   document.getElementById('compactTooltip').checked = !!settings.compactTooltip;
   document.getElementById('coloredLabels').checked = !!settings.coloredLabels;
+  document.getElementById('defaultChampionsMode').checked = !!settings.defaultChampionsMode;
 
   ids.forEach(id => {
     document.getElementById(id).addEventListener('input', save);
