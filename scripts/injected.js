@@ -47,50 +47,56 @@
         left: 0;
         top: 0;
         display: none;
-        min-width: 198px;
-        max-width: min(340px, calc(100vw - 16px));
+        min-width: 154px;
+        max-width: min(260px, calc(100vw - 16px));
         background: rgba(20, 20, 20, 0.96);
         color: #fff;
-        padding: 10px 12px;
-        border-radius: 8px;
+        padding: 6px 8px;
+        border-radius: 7px;
         font-family: Verdana, Helvetica, Arial, sans-serif;
-        font-size: 12px;
-        line-height: 1.4;
+        font-size: 10.5px;
+        line-height: 1.18;
         z-index: 2147483647;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+        box-shadow: 0 5px 14px rgba(0, 0, 0, 0.26);
         pointer-events: none;
       }
       #${TOOLTIP_ID}.compact {
-        min-width: 176px;
-        max-width: min(300px, calc(100vw - 16px));
-        padding: 8px 10px;
-        font-size: 11px;
-        line-height: 1.25;
+        min-width: 146px;
+        max-width: min(240px, calc(100vw - 16px));
+        padding: 5px 7px;
+        font-size: 10px;
+        line-height: 1.15;
       }
       #${TOOLTIP_ID} .psh-header {
         font-weight: 700;
-        margin-bottom: 6px;
+        margin-bottom: 2px;
+        white-space: nowrap;
       }
       #${TOOLTIP_ID}.compact .psh-header {
-        margin-bottom: 4px;
+        margin-bottom: 2px;
       }
-      #${TOOLTIP_ID} .psh-section { margin-top: 8px; }
-      #${TOOLTIP_ID}.compact .psh-section { margin-top: 5px; }
+      #${TOOLTIP_ID} .psh-section { margin-top: 3px; }
+      #${TOOLTIP_ID} .psh-section:first-of-type { margin-top: 0; }
+      #${TOOLTIP_ID}.compact .psh-section { margin-top: 2px; }
       #${TOOLTIP_ID} .psh-section-title {
         font-weight: 700;
-        margin-bottom: 4px;
+        margin-bottom: 1px;
         opacity: .95;
+        font-size: 10px;
+      }
+      #${TOOLTIP_ID}.compact .psh-section-title {
+        font-size: 9.5px;
       }
       #${TOOLTIP_ID} .psh-row {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        gap: 10px;
-        margin: 2px 0;
+        gap: 7px;
+        margin: 0;
       }
       #${TOOLTIP_ID}.compact .psh-row {
-        gap: 8px;
-        margin: 1px 0;
+        gap: 6px;
+        margin: 0;
       }
       #${TOOLTIP_ID} .psh-label { opacity: .96; }
       #${TOOLTIP_ID} .psh-value {
@@ -265,7 +271,18 @@
       }
       .pssc-suggest-item:hover,
       .pssc-suggest-item.is-active {
-        background: var(--pssc-surface-strong);
+        background: rgba(255,255,255,.13);
+        color: #fde68a;
+      }
+      .pssc-suggest-item.is-current {
+        background: rgba(194,100,28,.14);
+        color: #d97706;
+        font-weight: 700;
+      }
+      .pssc-suggest-item.is-current:hover,
+      .pssc-suggest-item.is-current.is-active {
+        background: rgba(194,100,28,.22);
+        color: #f59e0b;
       }
       #${CREEP_BOX_ID} .pssc-help {
         margin-top: 4px;
@@ -325,36 +342,77 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        margin-left: 8px;
-        padding: 2px 7px;
-        border: 1px solid rgba(255,255,255,.18);
-        border-radius: 999px;
-        background: rgba(12,18,26,.45);
+        margin-bottom: 8px;
+        padding: 4px 8px;
+        border: 1px solid rgba(159,202,228,.12);
+        border-radius: 8px;
+        background: rgba(255,255,255,.04);
         color: rgba(255,255,255,.9);
         font: 11px Verdana, Arial, sans-serif;
-        vertical-align: middle;
+        white-space: nowrap;
         user-select: none;
+        cursor: pointer;
       }
       #${JUMP_TOGGLE_ID} input {
         width: 12px;
         height: 12px;
         margin: 0;
+        cursor: pointer;
+      }
+      #${JUMP_TOGGLE_ID}:hover {
+        background: rgba(255,255,255,.06);
+        border-color: rgba(126,227,255,.22);
       }
       .${JUMP_OVERLAY_CLASS} {
         position: absolute;
-        height: 8px;
+        height: 14px;
         pointer-events: none;
         z-index: 3;
       }
       .${JUMP_OVERLAY_CLASS} .ps-speed-jump-marker {
         position: absolute;
         top: 50%;
-        width: 5px;
-        height: 5px;
+        width: 6px;
+        height: 6px;
         border-radius: 50%;
-        background: #ff3131;
-        box-shadow: 0 0 0 1px rgba(60,0,0,.55), 0 0 6px rgba(255,49,49,.7);
+        background: #63d6e8;
         transform: translate(-50%, -50%);
+        cursor: pointer;
+        pointer-events: auto;
+        transition:
+          transform 150ms cubic-bezier(.2, 1.2, .35, 1),
+          border-color 120ms ease,
+          box-shadow 170ms ease,
+          background 120ms ease;
+        border: 1px solid rgba(0,0,0,.32);
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.38),
+          0 0 4px rgba(99,214,232,.42);
+      }
+      .${JUMP_OVERLAY_CLASS} .ps-speed-jump-marker::before {
+        content: '';
+        position: absolute;
+        inset: -5px;
+        border-radius: 50%;
+      }
+      .${JUMP_OVERLAY_CLASS} .ps-speed-jump-marker:hover {
+        background: #85e5f1;
+        border-color: #000;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,.58),
+          0 0 6px rgba(99,214,232,.5);
+        transform: translate(-50%, -50%) scale(1.25);
+      }
+      .${JUMP_OVERLAY_CLASS} .ps-speed-jump-marker:active {
+        transform: translate(-50%, -50%) scale(1.12);
+      }
+      .${JUMP_OVERLAY_CLASS} .ps-speed-jump-marker.is-snapping {
+        animation: ps-speed-jump-snap 260ms cubic-bezier(.2, 1.15, .35, 1);
+      }
+      @keyframes ps-speed-jump-snap {
+        0% { transform: translate(-50%, -50%) scale(1); }
+        45% { transform: translate(-50%, -50%) scale(1.32); }
+        100% { transform: translate(-50%, -50%) scale(1); }
       }
     `;
     document.head.appendChild(style);
@@ -808,8 +866,9 @@
   }
 
   function maybeBindJumpPointsToggle() {
-    const teamNameInput = document.querySelector('input.teamnameedit');
-    if (!teamNameInput) return;
+    // Jump toggle is placed in the stat form area, not the team name area
+    const statForm = document.querySelector('input[name="stat-spe"]')?.closest('.statform');
+    if (!statForm) return;
     let toggle = document.getElementById(JUMP_TOGGLE_ID);
     if (!toggle) {
       toggle = document.createElement('label');
@@ -821,7 +880,8 @@
         saveJumpPointsVisible(input.checked);
         schedule();
       });
-      teamNameInput.insertAdjacentElement('afterend', toggle);
+      // Insert at the top of the stat form
+      statForm.insertAdjacentElement('beforebegin', toggle);
     } else {
       const input = toggle.querySelector('input');
       if (input) input.checked = readJumpPointsVisible();
@@ -866,8 +926,9 @@
       return;
     }
     if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
+    const overlayHeight = 14;
     const left = slider.offsetLeft;
-    const top = slider.offsetTop + Math.max(0, (slider.offsetHeight - 8) / 2);
+    const top = slider.offsetTop + (slider.offsetHeight / 2) - (overlayHeight / 2);
     const width = slider.offsetWidth;
     const signature = `${maxInvestment}:${left}:${top}:${width}:${investments.join(',')}`;
     const existing = parent.querySelector(`.${JUMP_OVERLAY_CLASS}`);
@@ -885,6 +946,20 @@
       marker.className = 'ps-speed-jump-marker';
       marker.title = `Jump point: ${investment} ${maxInvestment === CHAMPIONS_MAX_POINTS ? 'Stat Points' : 'EVs'}`;
       marker.style.left = `${(investment / maxInvestment) * 100}%`;
+
+      const snapToJumpPoint = () => {
+        setNativeValue(slider, investment);
+        triggerInput(slider);
+        marker.classList.remove('is-snapping');
+        void marker.offsetWidth;
+        marker.classList.add('is-snapping');
+      };
+
+      marker.addEventListener('click', (e) => {
+        e.stopPropagation();
+        snapToJumpPoint();
+      });
+
       overlay.appendChild(marker);
     }
     parent.appendChild(overlay);
@@ -1094,14 +1169,15 @@
     box.dataset.activeIndex = '-1';
   }
 
-  function openSuggest(box, items, onPick) {
+  function openSuggest(box, items, onPick, currentQuery = '') {
     if (!box) return;
     if (!items.length) {
       closeSuggest(box);
       return;
     }
+    const currentId = toID(currentQuery);
     box.innerHTML = items.map((name, idx) =>
-      `<div class="pssc-suggest-item${idx===0?' is-active':''}" data-name="${escapeHtml(name)}" data-index="${idx}">${escapeHtml(name)}</div>`
+      `<div class="pssc-suggest-item${idx===0?' is-active':''}${currentId && toID(name) === currentId ? ' is-current' : ''}" data-name="${escapeHtml(name)}" data-index="${idx}">${escapeHtml(name)}</div>`
     ).join('');
     box.classList.add('is-open');
     box.dataset.activeIndex = '0';
@@ -1206,13 +1282,13 @@
             <option value="unboosted">Unboosted</option>
           </select>
           <span class="pssc-targetspeed"></span>
+          <label class="pssc-mode"><input type="checkbox" class="pssc-champions" /> Use Champions mode</label>
         </div>
         <div class="pssc-row">
           <div class="pssc-boosts">
             <label><input type="checkbox" class="pssc-plus1" /> Target +1</label>
             <label><input type="checkbox" class="pssc-plus2" /> Target +2</label>
           </div>
-          <label class="pssc-mode"><input type="checkbox" class="pssc-champions" /> Use Champions mode</label>
         </div>
         <div class="pssc-footer">
           <div class="pssc-footer-left">
@@ -1310,14 +1386,14 @@
         saveCreepState({ targetName: value });
         updateTargetSpeedLabel();
         const items = getSpeciesSuggestions(value);
-        openSuggest(suggestBox, items, pickSuggestion);
+        openSuggest(suggestBox, items, pickSuggestion, value);
         positionSuggestBox(targetInput, suggestBox);
       };
 
       targetInput.addEventListener('input', refreshSuggest);
       targetInput.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') {
-          if (!suggestBox.classList.contains('is-open')) { openSuggest(suggestBox, getSpeciesSuggestions(targetInput.value.trim()), pickSuggestion); positionSuggestBox(targetInput, suggestBox); }
+          if (!suggestBox.classList.contains('is-open')) { openSuggest(suggestBox, getSpeciesSuggestions(targetInput.value.trim()), pickSuggestion, targetInput.value.trim()); positionSuggestBox(targetInput, suggestBox); }
           moveSuggest(suggestBox, 1);
           e.preventDefault();
         } else if (e.key === 'ArrowUp') {
