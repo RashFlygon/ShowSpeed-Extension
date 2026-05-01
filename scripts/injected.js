@@ -47,40 +47,39 @@
         left: 0;
         top: 0;
         display: none;
-        min-width: 154px;
-        max-width: min(260px, calc(100vw - 16px));
+        min-width: 176px;
+        max-width: min(310px, calc(100vw - 16px));
         background: rgba(20, 20, 20, 0.96);
         color: #fff;
-        padding: 6px 8px;
-        border-radius: 7px;
+        padding: 8px 10px;
+        border-radius: 8px;
         font-family: Verdana, Helvetica, Arial, sans-serif;
-        font-size: 10.5px;
-        line-height: 1.18;
+        font-size: 11px;
+        line-height: 1.28;
         z-index: 2147483647;
         box-shadow: 0 5px 14px rgba(0, 0, 0, 0.26);
         pointer-events: none;
       }
       #${TOOLTIP_ID}.compact {
-        min-width: 146px;
-        max-width: min(240px, calc(100vw - 16px));
-        padding: 5px 7px;
-        font-size: 10px;
-        line-height: 1.15;
+        min-width: 164px;
+        max-width: min(280px, calc(100vw - 16px));
+        padding: 7px 9px;
+        font-size: 10.5px;
+        line-height: 1.24;
       }
       #${TOOLTIP_ID} .psh-header {
         font-weight: 700;
-        margin-bottom: 2px;
-        white-space: nowrap;
+        margin-bottom: 4px;
       }
       #${TOOLTIP_ID}.compact .psh-header {
-        margin-bottom: 2px;
+        margin-bottom: 3px;
       }
-      #${TOOLTIP_ID} .psh-section { margin-top: 3px; }
+      #${TOOLTIP_ID} .psh-section { margin-top: 5px; }
       #${TOOLTIP_ID} .psh-section:first-of-type { margin-top: 0; }
-      #${TOOLTIP_ID}.compact .psh-section { margin-top: 2px; }
+      #${TOOLTIP_ID}.compact .psh-section { margin-top: 4px; }
       #${TOOLTIP_ID} .psh-section-title {
         font-weight: 700;
-        margin-bottom: 1px;
+        margin-bottom: 2px;
         opacity: .95;
         font-size: 10px;
       }
@@ -91,12 +90,12 @@
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        gap: 7px;
-        margin: 0;
+        gap: 10px;
+        margin: 1px 0;
       }
       #${TOOLTIP_ID}.compact .psh-row {
-        gap: 6px;
-        margin: 0;
+        gap: 8px;
+        margin: 1px 0;
       }
       #${TOOLTIP_ID} .psh-label { opacity: .96; }
       #${TOOLTIP_ID} .psh-value {
